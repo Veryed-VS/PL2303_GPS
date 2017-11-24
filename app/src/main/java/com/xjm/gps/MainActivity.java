@@ -286,7 +286,7 @@ public class MainActivity extends Activity {
                                 mockLocation.setBearing(gpsPosition.dir);              //方向
                                 mockLocation.setAccuracy(gpsPosition.accuracy);        //精度
                                 mockLocation.setAltitude(gpsPosition.altitude);        //海拔
-                                mockLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos()); // 没有就会报错 返回系统启动到现在的毫秒数,包含休眠时间
+                                mockLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());// 没有就会报错 返回系统启动到现在的毫秒数,包含休眠时间
                                 mockLocation.setTime(System.currentTimeMillis());      //不能使用GPS时间，会导致严重的时间不一致 跟系统的时间不一致
                                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation);
                             }
