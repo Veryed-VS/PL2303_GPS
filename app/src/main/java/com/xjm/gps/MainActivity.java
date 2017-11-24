@@ -305,7 +305,7 @@ public class MainActivity extends Activity {
                         }
                     }
                 } else if (locationStr.startsWith("$GPGGA")) {
-                    String[] split = locationStr.split(",");
+                    String[] split = locationStr.split(","); //
                     if(split.length >= 9 && split[6].equals("1")) {
                         try {
                             gpsPosition.lat = Latitude2Decimal(split[2], split[3]);
