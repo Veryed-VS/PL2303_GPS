@@ -313,7 +313,7 @@ public class MainActivity extends Activity {
                             gpsPosition.quality = Integer.parseInt(split[6]);
                             gpsPosition.altitude = Float.parseFloat(split[9]);
                             gpsPosition.accuracy = 7.0f * Float.parseFloat(split[8]);
-                            satelliteNum = Integer.parseInt(split[7]);                //当前可见卫星数量
+                            satelliteNum = Integer.parseInt(split[7]);//当前可见卫星数量
                             gpsPosition.updatefix();
                             if(gpsPosition.fixed){
                                 Location mockLocation = new Location(LocationManager.GPS_PROVIDER);
