@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private PL2303Driver driver;
     private PL2303Driver.BaudRate mBaudrate = PL2303Driver.BaudRate.B4800;
     private LocationManager locationManager;
-
+    //显示控件
     private TextView lonTextView;
     private TextView latTextView;
     private TextView altitudeTextView;
