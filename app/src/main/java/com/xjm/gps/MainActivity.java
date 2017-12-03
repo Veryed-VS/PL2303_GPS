@@ -62,9 +62,9 @@ public class MainActivity extends Activity {
         driver = new PL2303Driver(usbManager, this, ACTION_USB_PERMISSION);
         if (!driver.PL2303USBFeatureSupported()) {  //判断设备是不是支持USB设备
             AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle("错误");
-            normalDialog.setMessage("设备不支持USB串口通讯,程序无法运行,即将退出程序");
-            normalDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            normalDialog.setTitle(getString(R.string.error));
+            normalDialog.setMessage(getString(R.string.error_text));
+            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -76,9 +76,9 @@ public class MainActivity extends Activity {
         }
         if ((Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) == 0)) {
             AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle("错误");
-            normalDialog.setMessage("请进入系统设置打开位置模拟");
-            normalDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            normalDialog.setTitle(getString(R.string.error));
+            normalDialog.setMessage(getString(R.string.open_location));
+            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -93,9 +93,9 @@ public class MainActivity extends Activity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
         if (locationManager == null) {
             AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle("错误");
-            normalDialog.setMessage("系统模拟位置获取出现未知错误,即将退出程序");
-            normalDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            normalDialog.setTitle(getString(R.string.error));
+            normalDialog.setMessage(getString(R.string.location_error));
+            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
@@ -112,20 +112,20 @@ public class MainActivity extends Activity {
         gpsPosition = new GPSPosition();
         //初始化USB驱动
         if (!driver.enumerate()) {
-            numTxtView.setText("请插入合适的USB-GPS设备");
+            numTxtView.setText(getString(R.string.insert_error));
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
                         if (!driver.PL2303Device_IsHasPermission()) {
-                            Toast.makeText(MainActivity.this, "连接失败,没有权限", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
                         }
                         if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
-                            Toast.makeText(MainActivity.this, "仅支持PL2303芯片驱动", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        numTxtView.setText("GPS正在定位...");
+                        numTxtView.setText(getString(R.string.location_ing));
                         handle.post(runnable);
                     }
                 }
@@ -138,9 +138,9 @@ public class MainActivity extends Activity {
         super.onRestart();
         if ((Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) == 0)) {
             AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle("错误");
-            normalDialog.setMessage("请进入系统设置打开位置模拟");
-            normalDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            normalDialog.setTitle(getString(R.string.error));
+            normalDialog.setMessage(getString(R.string.open_location));
+            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
@@ -159,20 +159,20 @@ public class MainActivity extends Activity {
                 locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
                 gpsPosition = new GPSPosition();
                 if (!driver.enumerate()) {
-                    numTxtView.setText("请插入合适的USB-GPS设备");
+                    numTxtView.setText(getString(R.string.insert_error));
                 } else {
                     new Handler().postDelayed(new Runnable() {   //必须延迟  不然初始化不成功
                         @Override
                         public void run() {
                             if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
                                 if (!driver.PL2303Device_IsHasPermission()) {
-                                    Toast.makeText(MainActivity.this, "连接失败,没有权限", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
                                 }
                                 if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
-                                    Toast.makeText(MainActivity.this, "仅支持PL2303芯片驱动", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                numTxtView.setText("GPS正在定位...");
+                                numTxtView.setText(getString(R.string.location_ing));
                                 handle.post(runnable);
                             }
                         }
@@ -229,6 +229,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    private String lat_text = getString(R.string.lat_str);
+    private String accuracy_text = getString(R.string.accuracy_str);
+    private String lon_text = getString(R.string.lon_str);
+    private String speed_text = getString(R.string.speed_str);
+    private String dir_text = getString(R.string.dir_str);
+    private String satellite_text = getString(R.string.satellite_str);
+    private String altitude_text = getString(R.string.altitude_str);
     private boolean isShowView;
     private String lastString = "";
     private Handler handle = new Handler();
@@ -283,13 +290,13 @@ public class MainActivity extends Activity {
                                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation);
                             }
                             if(isShowView){
-                                latTextView.setText("纬度:" + String.format("%.2f", gpsPosition.lat) + " °");
-                                lonTextView.setText("经度:" + String.format("%.2f", gpsPosition.lon) + " °");
-                                velocityTextView.setText("速度:" + String.format("%.2f", gpsPosition.velocity) + " m/s");
-                                dirTextView.setText("方向:" + String.format("%.2f", gpsPosition.dir) + " °");
-                                accuracyTextView.setText("精度:" + String.format("%.2f", gpsPosition.accuracy) + " m");
-                                numTxtView.setText("可见卫星:" + satelliteNum);
-                                altitudeTextView.setText("海拔:" + String.format("%.2f", gpsPosition.altitude) + " m");
+                                latTextView.setText(lat_text + String.format("%.2f", gpsPosition.lat) + " °");
+                                lonTextView.setText(lon_text + String.format("%.2f", gpsPosition.lon) + " °");
+                                velocityTextView.setText(speed_text + String.format("%.2f", gpsPosition.velocity) + " m/s");
+                                dirTextView.setText(dir_text + String.format("%.2f", gpsPosition.dir) + " °");
+                                accuracyTextView.setText(accuracy_text + String.format("%.2f", gpsPosition.accuracy) + " m");
+                                numTxtView.setText(satellite_text + satelliteNum);
+                                altitudeTextView.setText(altitude_text + String.format("%.2f", gpsPosition.altitude) + " m");
                             }
                         } catch (Exception e) {
                             handle.postDelayed(runnable, 200);
@@ -320,13 +327,13 @@ public class MainActivity extends Activity {
                                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation); //写出当前位置
                             }
                             if(isShowView){
-                                latTextView.setText("纬度:" + String.format("%.2f", gpsPosition.lat) + " °");
-                                lonTextView.setText("经度:" + String.format("%.2f", gpsPosition.lon) + " °");
-                                velocityTextView.setText("速度:" + String.format("%.2f", gpsPosition.velocity) + " m/s");
-                                dirTextView.setText("方向:" + String.format("%.2f", gpsPosition.dir) + " °");
-                                accuracyTextView.setText("精度:" + String.format("%.2f", gpsPosition.accuracy) + " m");
-                                numTxtView.setText("可见卫星:" + satelliteNum);
-                                altitudeTextView.setText("海拔:" + String.format("%.2f", gpsPosition.altitude) + " m");
+                                latTextView.setText(lat_text + String.format("%.2f", gpsPosition.lat) + " °");
+                                lonTextView.setText(lon_text + String.format("%.2f", gpsPosition.lon) + " °");
+                                velocityTextView.setText(speed_text + String.format("%.2f", gpsPosition.velocity) + " m/s");
+                                dirTextView.setText(dir_text + String.format("%.2f", gpsPosition.dir) + " °");
+                                accuracyTextView.setText(accuracy_text + String.format("%.2f", gpsPosition.accuracy) + " m");
+                                numTxtView.setText(satellite_text + satelliteNum);
+                                altitudeTextView.setText(altitude_text + String.format("%.2f", gpsPosition.altitude) + " m");
                             }
                         } catch (Exception e) {
                             handle.postDelayed(runnable, 200);
@@ -409,20 +416,20 @@ public class MainActivity extends Activity {
                 MainActivity.this.finish();
             } else if (action.equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {//USB已经连接
                 if (!driver.enumerate()) {
-                    numTxtView.setText("请插入合适的USB-GPS设备");
+                    numTxtView.setText(getString(R.string.insert_error));
                 } else {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
                                 if (!driver.PL2303Device_IsHasPermission()) {
-                                    Toast.makeText(MainActivity.this, "连接失败,没有权限", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
                                 }
                                 if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
-                                    Toast.makeText(MainActivity.this, "仅支持PL2303芯片驱动", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
                                 }
                             } else {
-                                numTxtView.setText("GPS正在定位...");
+                                numTxtView.setText(getString(R.string.location_ing));
                                 handle.post(runnable);
                             }
                         }

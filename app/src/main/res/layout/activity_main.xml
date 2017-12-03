@@ -18,7 +18,7 @@
             android:layout_centerInParent="true"
             android:gravity="center"
             android:lines="1"
-            android:text="环天BU-353 GPS解析器"
+            android:text="@string/title_str"
             android:textColor="@android:color/white"
             android:textSize="35sp"
             android:textStyle="bold" />
@@ -30,7 +30,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="20dp"
-            android:text="请插入环天BU-353 GPS"
+            android:text="@string/insert_error"
             android:textColor="@android:color/white" />
 
     </RelativeLayout>
@@ -53,7 +53,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="精度:0.00 m"
+                android:text="@string/init_accuracy"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -64,7 +64,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="速度:0.00 m/s"
+                android:text="@string/init_speed"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
         </TableRow>
@@ -81,7 +81,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="经度:0.00 °"
+                android:text="@string/init_lat"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -92,7 +92,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="纬度:0.00 °"
+                android:text="@string/init_lon"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -110,7 +110,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="方向:0.00 °"
+                android:text="@string/init_dir"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -121,7 +121,7 @@
                 android:layout_centerInParent="true"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="海拔:0.00 m"
+                android:text="@string/init_altitude"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
         </TableRow>

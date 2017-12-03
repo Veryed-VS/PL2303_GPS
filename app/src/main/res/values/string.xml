@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error">Error</string>
+    <string name="error_text">USB serial communication is not supported, the program is unable to run and will exit the application</string>
+    <string name="ok_text">OK</string>
+    <string name="open_location">Please enter the system setting open position simulation</string>
+    <string name="location_error">An unknown error that will exit the program</string>
+    <string name="insert_error">Please insert the appropriate USB-GPS device</string>
+    <string name="location_ing">GPS is locating...</string>
+    <string name="usb_error">Only support PL2303 chip driver</string>
+    <string name="lat_str">Latitude:</string>
+    <string name="lon_str">Longitude:</string>
+    <string name="speed_str">Speed:</string>
+    <string name="dir_str">direction:</string>
+    <string name="accuracy_str">Accuracy:</string>
+    <string name="satellite_str">Visible satellite:</string>
+    <string name="altitude_str">Altitude:</string>
+    <string name="title_str">Bu353 USB-GPS parser</string>
+    <string name="init_accuracy">Accuracy:0.00 m</string>
+    <string name="init_speed">Speed:0.00 m/s</string>
+    <string name="init_lat">Longitude:0.00 °</string>
+    <string name="init_lon">Latitude:0.00 °</string>
+    <string name="init_dir">Direction:0.00 °</string>
+    <string name="init_altitude">Altitude:0.00 m</string>
+    <string name="permission_error">Connection failed, no permissions</string>
+</resources>

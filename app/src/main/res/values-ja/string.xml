@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error">誤り</string>
+    <string name="error_text">装置はUSBポート通信、プログラムは実行できない、まもなく退出するプログラム</string>
+    <string name="ok_text">確定</string>
+    <string name="open_location">システム設置位置に入って模擬する</string>
+    <string name="location_error">システムシミュレーション位置は未知のエラーが現れ、まもなく退出して</string>
+    <string name="insert_error">を挿入して適切なUSB-GPS設備</string>
+    <string name="location_ing">GPSがポジショニングている...</string>
+    <string name="usb_error">のみ対応PL2303チップ駆動</string>
+    <string name="lat_str">緯度:</string>
+    <string name="lon_str">経度:</string>
+    <string name="speed_str">速度:</string>
+    <string name="dir_str">方向:</string>
+    <string name="accuracy_str">精度:</string>
+    <string name="satellite_str">可視衛星:</string>
+    <string name="altitude_str">海抜:</string>
+    <string name="title_str">Bu353 USB-GPS解析器</string>
+    <string name="init_accuracy">精度:0.00 m</string>
+    <string name="init_speed">速度:0.00 m/s</string>
+    <string name="init_lat">経度:0.00 °</string>
+    <string name="init_lon">緯度:0.00 °</string>
+    <string name="init_dir">方向:0.00 °</string>
+    <string name="init_altitude">海拔:0.00 m</string>
+    <string name="permission_error">失敗につながって、権限がない</string>
+</resources>

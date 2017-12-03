@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error">错误</string>
+    <string name="error_text">设备不支持USB串口通讯,程序无法运行,即将退出程序</string>
+    <string name="ok_text">确定</string>
+    <string name="open_location">请进入系统设置打开位置模拟</string>
+    <string name="location_error">系统模拟位置获取出现未知错误,即将退出程序</string>
+    <string name="insert_error">请插入合适的USB-GPS设备</string>
+    <string name="location_ing">GPS正在定位...</string>
+    <string name="usb_error">仅支持PL2303芯片驱动</string>
+    <string name="lat_str">纬度:</string>
+    <string name="lon_str">经度:</string>
+    <string name="speed_str">速度:</string>
+    <string name="dir_str">方向:</string>
+    <string name="accuracy_str">精度:</string>
+    <string name="satellite_str">可见卫星:</string>
+    <string name="altitude_str">海拔:</string>
+    <string name="title_str">环天BU-353 GPS解析器</string>
+    <string name="init_accuracy">精度:0.00 m</string>
+    <string name="init_speed">速度:0.00 m/s</string>
+    <string name="init_lat">经度:0.00 °</string>
+    <string name="init_lon">纬度:0.00 °</string>
+    <string name="init_dir">方向:0.00 °</string>
+    <string name="init_altitude">海拔:0.00 m</string>
+    <string name="permission_error">连接失败,没有权限</string>
+</resources>
