@@ -1,27 +1,34 @@
 package com.xjm.gps;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import tw.com.prolific.driver.pl2303.PL2303Driver;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private static final String ACTION_USB_PERMISSION = "com.android.hardware.USB_PERMISSION";
     private PL2303Driver driver;
     private PL2303Driver.BaudRate mBaudrate = PL2303Driver.BaudRate.B4800;
@@ -37,11 +44,21 @@ public class MainActivity extends Activity {
 
     private GPSPosition gpsPosition;         //另外的GPS对象
     private int satelliteNum;                //当前用的卫星数量
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        lat_text = getString(R.string.lat_str);
+        accuracy_text = getString(R.string.accuracy_str);
+        lon_text = getString(R.string.lon_str);
+        speed_text = getString(R.string.speed_str);
+        dir_text = getString(R.string.dir_str);
+        satellite_text = getString(R.string.satellite_str);
+        altitude_text = getString(R.string.altitude_str);
+
         //控件初始化
         lonTextView = findViewById(R.id.lon_textView);
         latTextView = findViewById(R.id.lat_textView);
@@ -74,26 +91,12 @@ public class MainActivity extends Activity {
             normalDialog.create().show();
             return;
         }
-        if ((Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) == 0)) {
-            AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle(getString(R.string.error));
-            normalDialog.setMessage(getString(R.string.open_location));
-            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-                    startActivity(intent);
-                }
-            });
-            normalDialog.create().show();
-            return;
-        }
         //系统位置管理器
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
         if (locationManager == null) {
             AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
             normalDialog.setTitle(getString(R.string.error));
+            normalDialog.setCancelable(false);
             normalDialog.setMessage(getString(R.string.location_error));
             normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
                 @Override
@@ -105,24 +108,95 @@ public class MainActivity extends Activity {
             normalDialog.create().show();
             return;
         }
-        locationManager.addTestProvider(LocationManager.GPS_PROVIDER, true, true, false, false, true, true, true
-                , Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
-        locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
-        locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
-        gpsPosition = new GPSPosition();
+        initLocation();
+    }
+
+    private void initLocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+                return;
+            } else {
+                try {
+                    String providerStr = LocationManager.GPS_PROVIDER;
+                    LocationProvider provider = locationManager.getProvider(providerStr);
+                    if (provider != null) {
+                        locationManager.addTestProvider(
+                                provider.getName()
+                                , provider.requiresNetwork()
+                                , provider.requiresSatellite()
+                                , provider.requiresCell()
+                                , provider.hasMonetaryCost()
+                                , provider.supportsAltitude()
+                                , provider.supportsSpeed()
+                                , provider.supportsBearing()
+                                , provider.getPowerRequirement()
+                                , provider.getAccuracy());
+                    } else {
+                        locationManager.addTestProvider(providerStr, true, true, false,
+                                false, true, true, true,
+                                Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
+                    }
+                    locationManager.setTestProviderEnabled(providerStr, true);
+                    locationManager.setTestProviderStatus(providerStr, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
+                } catch (SecurityException e) {
+                    AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
+                    normalDialog.setTitle(getString(R.string.error));
+                    normalDialog.setCancelable(false);
+                    normalDialog.setMessage(getString(R.string.open_location));
+                    normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                            startActivity(intent);
+                        }
+                    });
+                    normalDialog.create().show();
+                    return;
+                }
+            }
+        } else {
+            if (Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) != 0) {
+                AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
+                normalDialog.setTitle(getString(R.string.error));
+                normalDialog.setCancelable(false);
+                normalDialog.setMessage(getString(R.string.open_location));
+                normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                        startActivity(intent);
+                    }
+                });
+                normalDialog.create().show();
+                return;
+            } else {
+                locationManager.addTestProvider(LocationManager.GPS_PROVIDER, true, true, false, false, true, true, true
+                        , Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
+                locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
+                locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
+            }
+        }
         //初始化USB驱动
         if (!driver.enumerate()) {
             numTxtView.setText(getString(R.string.insert_error));
         } else {
+            gpsPosition = new GPSPosition();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
                         if (!driver.PL2303Device_IsHasPermission()) {
                             Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
+                            return;
                         }
                         if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
                             Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
+                            return;
                         }
                     } else {
                         numTxtView.setText(getString(R.string.location_ing));
@@ -134,51 +208,37 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_FINE_LOCATION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            initLocation();
+        } else {
+            finish();
+        }
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
-        if ((Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) == 0)) {
-            AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle(getString(R.string.error));
-            normalDialog.setMessage(getString(R.string.open_location));
-            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-                    startActivity(intent);
-                    dialog.dismiss();
-                }
-            });
-            normalDialog.create().show();
-            return;
-        } else {
+        if (locationManager == null) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
             if (locationManager == null) {
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
-                locationManager.addTestProvider(LocationManager.GPS_PROVIDER, true, true, false, false, true, true, true
-                        , Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
-                locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
-                locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
-                gpsPosition = new GPSPosition();
-                if (!driver.enumerate()) {
-                    numTxtView.setText(getString(R.string.insert_error));
-                } else {
-                    new Handler().postDelayed(new Runnable() {   //必须延迟  不然初始化不成功
-                        @Override
-                        public void run() {
-                            if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
-                                if (!driver.PL2303Device_IsHasPermission()) {
-                                    Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
-                                }
-                                if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
-                                    Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                numTxtView.setText(getString(R.string.location_ing));
-                                handle.post(runnable);
-                            }
-                        }
-                    }, 1000);
-                }
+                AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
+                normalDialog.setTitle(getString(R.string.error));
+                normalDialog.setCancelable(false);
+                normalDialog.setMessage(getString(R.string.location_error));
+                normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        MainActivity.this.finish();
+                    }
+                });
+                normalDialog.create().show();
+                return;
             }
+        }
+        if(gpsPosition == null){
+            initLocation();
         }
     }
 
@@ -229,13 +289,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String lat_text = getString(R.string.lat_str);
-    private String accuracy_text = getString(R.string.accuracy_str);
-    private String lon_text = getString(R.string.lon_str);
-    private String speed_text = getString(R.string.speed_str);
-    private String dir_text = getString(R.string.dir_str);
-    private String satellite_text = getString(R.string.satellite_str);
-    private String altitude_text = getString(R.string.altitude_str);
+    private String lat_text = null;
+    private String accuracy_text = null;
+    private String lon_text = null;
+    private String speed_text = null;
+    private String dir_text = null;
+    private String satellite_text = null;
+    private String altitude_text = null;
     private boolean isShowView;
     private String lastString = "";
     private Handler handle = new Handler();
@@ -247,28 +307,28 @@ public class MainActivity extends Activity {
                 String locationStr = new String(bytes).trim();
                 String[] splitString = locationStr.split("\r\n");
                 if (splitString.length == 1) {
-                    if(locationStr.startsWith("$")){
+                    if (locationStr.startsWith("$")) {
                         lastString = locationStr;
-                    }else{
+                    } else {
                         lastString = lastString + locationStr;
                     }
                     handle.postDelayed(runnable, 100);
                     return;
-                }else if(splitString.length == 2){
-                    if(locationStr.startsWith("$")){
+                } else if (splitString.length == 2) {
+                    if (locationStr.startsWith("$")) {
                         locationStr = splitString[0];
-                    }else{
+                    } else {
                         locationStr = lastString + splitString[0];
                     }
                     lastString = splitString[1];
-                }else{
+                } else {
                     lastString = splitString[splitString.length - 1];
                     locationStr = splitString[splitString.length - 2];
                 }
                 if (locationStr.startsWith("$GPGSV")) {
                     handle.postDelayed(runnable, 400);
                     return;
-                }else if (locationStr.startsWith("$GPRMC")) {
+                } else if (locationStr.startsWith("$GPRMC")) {
                     String[] split = locationStr.split(",");
                     if (split.length >= 9 && split[2].equals("A")) {   // A=有效定位，V=无效定位
                         try {
@@ -277,7 +337,7 @@ public class MainActivity extends Activity {
                             gpsPosition.velocity = Float.parseFloat(split[7]) * 0.514444f;
                             gpsPosition.dir = Float.parseFloat(split[8]);
                             gpsPosition.updatefix();
-                            if(gpsPosition.fixed){
+                            if (gpsPosition.fixed) {
                                 Location mockLocation = new Location(LocationManager.GPS_PROVIDER);
                                 mockLocation.setLatitude(gpsPosition.lat);             //纬度
                                 mockLocation.setLongitude(gpsPosition.lon);            //经度
@@ -289,7 +349,7 @@ public class MainActivity extends Activity {
                                 mockLocation.setTime(System.currentTimeMillis());      //不能使用GPS时间，会导致严重的时间不一致 跟系统的时间不一致
                                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation);
                             }
-                            if(isShowView){
+                            if (isShowView) {
                                 latTextView.setText(lat_text + String.format("%.2f", gpsPosition.lat) + " °");
                                 lonTextView.setText(lon_text + String.format("%.2f", gpsPosition.lon) + " °");
                                 velocityTextView.setText(speed_text + String.format("%.2f", gpsPosition.velocity) + " m/s");
@@ -305,7 +365,7 @@ public class MainActivity extends Activity {
                     }
                 } else if (locationStr.startsWith("$GPGGA")) {
                     String[] split = locationStr.split(","); //
-                    if(split.length >= 9 && split[6].equals("1")) {
+                    if (split.length >= 9 && split[6].equals("1")) {
                         try {
                             gpsPosition.lat = Latitude2Decimal(split[2], split[3]);
                             gpsPosition.lon = Longitude2Decimal(split[4], split[5]);
@@ -314,7 +374,7 @@ public class MainActivity extends Activity {
                             gpsPosition.accuracy = 7.0f * Float.parseFloat(split[8]);
                             satelliteNum = Integer.parseInt(split[7]);//当前可见卫星数量
                             gpsPosition.updatefix();
-                            if(gpsPosition.fixed){
+                            if (gpsPosition.fixed) {
                                 Location mockLocation = new Location(LocationManager.GPS_PROVIDER);
                                 mockLocation.setLatitude(gpsPosition.lat);             //纬度
                                 mockLocation.setLongitude(gpsPosition.lon);            //经度
@@ -326,7 +386,7 @@ public class MainActivity extends Activity {
                                 mockLocation.setTime(System.currentTimeMillis());      //不能使用GPS时间，会导致严重的时间不一致 跟系统的时间不一致
                                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, mockLocation); //写出当前位置
                             }
-                            if(isShowView){
+                            if (isShowView) {
                                 latTextView.setText(lat_text + String.format("%.2f", gpsPosition.lat) + " °");
                                 lonTextView.setText(lon_text + String.format("%.2f", gpsPosition.lon) + " °");
                                 velocityTextView.setText(speed_text + String.format("%.2f", gpsPosition.velocity) + " m/s");
@@ -346,7 +406,7 @@ public class MainActivity extends Activity {
                         try {
                             gpsPosition.accuracy = 7.0f * Float.parseFloat(split[16]); //定位精度
                             gpsPosition.updatefix();
-                            if(gpsPosition.fixed){
+                            if (gpsPosition.fixed) {
                                 Location mockLocation = new Location(LocationManager.GPS_PROVIDER);
                                 mockLocation.setLatitude(gpsPosition.lat);             //纬度
                                 mockLocation.setLongitude(gpsPosition.lon);            //经度
@@ -414,27 +474,6 @@ public class MainActivity extends Activity {
             String action = intent.getAction();
             if (action.equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {//USB被拔出
                 MainActivity.this.finish();
-            } else if (action.equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {//USB已经连接
-                if (!driver.enumerate()) {
-                    numTxtView.setText(getString(R.string.insert_error));
-                } else {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!driver.InitByBaudRate(mBaudrate, 700)) {  //700 超时时间
-                                if (!driver.PL2303Device_IsHasPermission()) {
-                                    Toast.makeText(MainActivity.this, getString(R.string.permission_error), Toast.LENGTH_SHORT).show();
-                                }
-                                if (driver.PL2303Device_IsHasPermission() && (!driver.PL2303Device_IsSupportChip())) {
-                                    Toast.makeText(MainActivity.this, getString(R.string.usb_error), Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                numTxtView.setText(getString(R.string.location_ing));
-                                handle.post(runnable);
-                            }
-                        }
-                    }, 1000);
-                }
             }
         }
     };
