@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        if(gpsPosition == null){
+        if (gpsPosition == null) {
             initLocation();
         }
     }
