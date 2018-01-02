@@ -273,18 +273,17 @@ public class MainActivity extends AppCompatActivity {
         if (locationManager == null) {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
             if (locationManager == null) {
-                AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-                normalDialog.setTitle(getString(R.string.error));
-                normalDialog.setCancelable(false);
-                normalDialog.setMessage(getString(R.string.location_error));
-                normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        MainActivity.this.finish();
-                    }
-                });
-                normalDialog.create().show();
+                new MaterialDialog.Builder(MainActivity.this).title(getString(R.string.error))
+                        .cancelable(false)
+                        .content(getString(R.string.location_error))
+                        .positiveText(getString(R.string.ok_text))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                dialog.dismiss();
+                                MainActivity.this.finish();
+                            }
+                        }).show();
                 return;
             }
         }
