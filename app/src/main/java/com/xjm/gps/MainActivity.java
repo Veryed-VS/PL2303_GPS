@@ -3,6 +3,7 @@ package com.xjm.gps;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,8 +24,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import tw.com.prolific.driver.pl2303.PL2303Driver;
 
@@ -78,37 +84,69 @@ public class MainActivity extends AppCompatActivity {
         //PL2303驱动
         driver = new PL2303Driver(usbManager, this, ACTION_USB_PERMISSION);
         if (!driver.PL2303USBFeatureSupported()) {  //判断设备是不是支持USB设备
-            AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle(getString(R.string.error));
-            normalDialog.setMessage(getString(R.string.error_text));
-            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    MainActivity.this.finish();
-                }
-            });
-            normalDialog.create().show();
+            new MaterialDialog.Builder(MainActivity.this)
+                    .title(getString(R.string.error))
+                    .content(getString(R.string.error_text))
+                    .cancelable(false)
+                    .positiveText(getString(R.string.ok_text))
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            dialog.dismiss();
+                            MainActivity.this.finish();
+                        }
+                    }).show();
             return;
         }
         //系统位置管理器
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); //位置模拟
         if (locationManager == null) {
-            AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-            normalDialog.setTitle(getString(R.string.error));
-            normalDialog.setCancelable(false);
-            normalDialog.setMessage(getString(R.string.location_error));
-            normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    MainActivity.this.finish();
-                }
-            });
-            normalDialog.create().show();
+            new MaterialDialog.Builder(MainActivity.this)
+                    .title(getString(R.string.error))
+                    .content(getString(R.string.location_error))
+                    .cancelable(false)
+                    .positiveText(getString(R.string.ok_text))
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            dialog.dismiss();
+                            MainActivity.this.finish();
+                        }
+                    }).show();
             return;
         }
         initLocation();
+    }
+
+    private void showInfoPop(){
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.info_pop,null);
+        final MaterialDialog dialog = new MaterialDialog.Builder(MainActivity.this)
+                .customView(view,false).cancelable(false).show();
+        view.findViewById(R.id.ok_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+//                Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                ComponentName componentName = intent.resolveActivity(getPackageManager());
+                if(componentName == null){
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .title(getString(R.string.error))
+                            .content(getString(R.string.error_dev))
+                            .positiveText(getString(R.string.ok_text))
+                            .cancelable(false)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    MainActivity.this.finish();
+                                }
+                            }).show();
+                }else{
+                    startActivity(intent);
+                }
+            }
+        });
+
     }
 
     private void initLocation() {
@@ -142,37 +180,50 @@ public class MainActivity extends AppCompatActivity {
                     locationManager.setTestProviderEnabled(providerStr, true);
                     locationManager.setTestProviderStatus(providerStr, LocationProvider.AVAILABLE, null, System.currentTimeMillis());
                 } catch (SecurityException e) {
-                    AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-                    normalDialog.setTitle(getString(R.string.error));
-                    normalDialog.setCancelable(false);
-                    normalDialog.setMessage(getString(R.string.open_location));
-                    normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-                            startActivity(intent);
-                        }
-                    });
-                    normalDialog.create().show();
+//                    AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
+//                    normalDialog.setTitle(getString(R.string.error));
+//                    normalDialog.setCancelable(false);
+//                    normalDialog.setMessage(getString(R.string.open_location));
+//                    normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+//                            startActivity(intent);
+//                        }
+//                    });
+//                    normalDialog.create().show();
+                    showInfoPop();
                     return;
                 }
             }
         } else {
             if (Settings.Secure.getInt(getContentResolver(), Settings.Secure.ALLOW_MOCK_LOCATION, 0) != 0) {
-                AlertDialog.Builder normalDialog = new AlertDialog.Builder(MainActivity.this);
-                normalDialog.setTitle(getString(R.string.error));
-                normalDialog.setCancelable(false);
-                normalDialog.setMessage(getString(R.string.open_location));
-                normalDialog.setPositiveButton(getString(R.string.ok_text), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
-                        startActivity(intent);
-                    }
-                });
-                normalDialog.create().show();
+                new MaterialDialog.Builder(MainActivity.this).title(getString(R.string.error))
+                        .cancelable(false)
+                        .content(getString(R.string.open_location))
+                        .positiveText(getString(R.string.ok_text))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                //Intent intent = new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                //startActivity(intent);
+                                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS);
+                                ComponentName componentName = intent.resolveActivity(getPackageManager());
+                                if(componentName == null){
+                                    new MaterialDialog.Builder(MainActivity.this).title(getString(R.string.error))
+                                            .content(getString(R.string.error_dev)).positiveText(getString(R.string.ok_text))
+                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                                    MainActivity.this.finish();
+                                                }
+                                            }).show();
+                                }else{
+                                    startActivity(intent);
+                                }
+                            }
+                        }).show();
                 return;
             } else {
                 locationManager.addTestProvider(LocationManager.GPS_PROVIDER, true, true, false, false, true, true, true

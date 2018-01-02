@@ -20,8 +20,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:26.1.0'
-//    compile 'com.android.support:appcompat-v7:26.0.1'
-//    testCompile 'junit:junit:4.12'
+    //compile 'com.android.support:appcompat-v7:26.0.1'
     compile files('libs/pl2303driver.jar')
+    //--------弹出对话框--------//
+    compile 'com.afollestad.material-dialogs:core:0.9.4.2'
 }

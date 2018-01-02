@@ -4,6 +4,7 @@
     <string name="error_text">装置はUSBポート通信、プログラムは実行できない、まもなく退出するプログラム</string>
     <string name="ok_text">確定</string>
     <string name="open_location">システム設置位置に入って模擬する</string>
+    <string name="open_loc_other">開発者のオプションとアナログ位置情報を選択してください:</string>
     <string name="location_error">システムシミュレーション位置は未知のエラーが現れ、まもなく退出して</string>
     <string name="insert_error">を挿入して適切なUSB-GPS設備</string>
     <string name="location_ing">GPSがポジショニングている...</string>
@@ -23,4 +24,6 @@
     <string name="init_dir">方向:0.00 °</string>
     <string name="init_altitude">海拔:0.00 m</string>
     <string name="permission_error">失敗につながって、権限がない</string>
+    <string name="error_dev">あなたの設備は開発者のデバッグを支持しませんか？</string>
+    <string name="open_txt">開く</string>
 </resources>
